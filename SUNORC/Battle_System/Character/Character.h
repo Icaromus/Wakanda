@@ -56,11 +56,14 @@ struct Item
 struct Move
 {
 	string Name;
-	int Cooldown;
+	int currentCooldown;
+	int maxCooldown;
+	double damageModifier;
 	string Effect;
 
-	explicit Move(string Name, int Cooldown, string Effect);
+	explicit Move(string Name, int Cooldown, double damageMod, string Effect);
 	Move(const Move& inMove);
+	Move();
 };
 
 
@@ -71,8 +74,8 @@ public:
 		string Name,
 		Weapon Weapon,
 		CounterBox Counters,
-		map<int, Move> Moves,
-		map<int, Item> Items,
+		vector<Move> Moves,
+		vector<Item> Items,
 		string StatusEffect,
 		Point Loc,
 		char Symbol,
@@ -84,14 +87,23 @@ public:
 	Weapon GetCharWeapon();
 	void SetCharWeapon(Weapon newWeapon);
 	
-	map<int, Move> GetMoveList();
-	void SetMoveList(map<int, Move>);
-	map<int, Item> GetItemList();
+	vector<Move> GetMoveList();
+	void SetMoveList(vector<Move>);
+	void SetMoveCooldown(int entry);
+
+	vector<Item> GetItemList();
+	void AddNewItem(Item);
+	void ChangeItemCount(int entry, int amount);
+
+	string GetCharAffinity();
+	void SetCharAffinity(string newAffinity);
 
 	string GetCharStatus();
 	void SetCharStatus(string);
 
 	CounterBox GetCounterBox();
+	void SetMoveCounter(int newCounter);
+	void SetActionCounter(int newCounter);
 	void ResetCounters();
 
 	Point GetCharLoc();
@@ -100,16 +112,17 @@ public:
 	void SetCharSymbol(char);
 
 	CharStats GetCharStats();
+	void SetCharStats(int newAtk, int newDef, int newSpd, int newCurHP, int newMaxHP);
 
 private:
 	string CharName;
 	Weapon CharWeapon;
 
-	map<int, Move> MoveList;
-	map<int, Item> ItemList;
+	vector<Move> MoveList;
+	vector<Item> ItemList;
 
+	string CharAffinity;
 	string CharStatus;
-	int CurrentHP;
 
 	CounterBox Counters;
 
