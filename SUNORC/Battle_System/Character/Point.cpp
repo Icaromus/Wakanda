@@ -15,6 +15,16 @@ public:
 		yval = y;
 	}
 
+	void operator = (int * coordList) // Overloading the assignment operator so that we can easily alter the Point's x and y values
+	{
+	    xval = coordList[0];  yval = coordList[1];
+	}
+
+	bool operator == (Point p)
+	{
+	    return (p.xval == xval && p.yval == yval);
+	}
+
 	// Extractors.
 	double x() { return xval; }
 	double y() { return yval; }

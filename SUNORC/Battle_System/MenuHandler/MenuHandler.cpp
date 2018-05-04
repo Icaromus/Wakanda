@@ -91,3 +91,18 @@ void MenuHandler::loopCharacters(Character currentCharacter)
 	}
 
 }
+
+void MenuHandler::setCharacterOrder() // alters the character list data member
+{
+    PriorityQueue q(characters.size());
+    // steps:
+    // Insert all characters into the priority queue
+    // Pop characters out of the PQ and re-insert them into the vector, but this time in the correct order
+    for (auto c : characters)
+	q.insert(c);
+    for (int i = 0; i < characters.size(); ++i)
+    {
+	characters[i] = q.pop(); // This reorders the characters so that they are ordered by speed, descending from index 0 to index characters.size() -1
+    }    
+}
+
