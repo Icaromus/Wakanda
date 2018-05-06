@@ -1,3 +1,8 @@
+#ifndef PRIORITYQUEUE_H
+#define PRIORITYQUEUE_H
+
+#include <iostream>
+using namespace std;
 template
     <typename Object>
 class PriorityQueue 
@@ -8,14 +13,26 @@ private:
     int size; // keep track of how many items are currently in the queue; will always point to the next open slot in the queue
  
 public:
-    PriorityQueue(int cap)
+    explicit PriorityQueue(int cap)
 	:capacity(cap), queue(new Object[capacity+0]), size(0)
+    {}
+
+    PriorityQueue(const PriorityQueue<Object> & q)
+	    :capacity(q.capacity), queue(q.queue), size(q.size)
+    { 
+    }
+
+
+
+
+    PriorityQueue()
+	    :capacity(10), size(0), queue(new Object[1])
     {}
 
     Object pop()
     {
 	if (!size)
-	    error("Pop on an empty queue.");
+	    std::cout << "Pop on an empty queue." << std::endl;
 	else
         {
 	    Object low_val = queue[0]; // save the lowest value of the PQ before swapping it
@@ -127,7 +144,7 @@ public:
         {
 	    out << "id: " << queue[i] <<  " ";
 	}
-        cout << endl;
+	out << endl;
     }
  
     friend ostream & operator << (ostream & out, const PriorityQueue & q)
@@ -142,4 +159,4 @@ public:
     }
 };
 
-
+#endif

@@ -1,6 +1,6 @@
 #include <iostream>
 #include <math.h>
-
+#pragma once
 using namespace std;
 
 // Class to represent points.

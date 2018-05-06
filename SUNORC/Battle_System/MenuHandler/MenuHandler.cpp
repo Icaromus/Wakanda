@@ -1,15 +1,22 @@
 #include <string>
 #include "MenuHandler.h"
 
-bool MenuHandler::hasActionCounters(Character currentCharacter) // Tells us if the current character can make any actions (fight, use item)
-{
-	return currentCharacter.GetActionCount();
-}
+MenuHandler::MenuHandler(vector<Character> chars, Field f, map<string, Menu *> m)//std::map<std::string, Menu> m)
+	    :field(f), characters(chars), menus(m)
+	{
+		MenuHandler::initialize();	
+	}
+	
 
-bool MenuHandler::hasMoveCounters(Character currentCharacter) // Does current character have enough counters to make a move on the field?
+/*bool MenuHandler::hasActionCounters(Character & currentCharacter) // Tells us if the current character can make any actions (fight, use item)
 {
-	return currentCharacter.GetMoveCount();
-}
+	return currentCharacter.GetCounterBox().ActionCount;
+}*/
+
+/*bool MenuHandler::hasMoveCounters(Character & currentCharacter) // Does current character have enough counters to make a move on the field?
+{
+	return currentCharacter.GetCounterBox().MoveCount;
+}*/
 
 bool MenuHandler::canEscape()
 {
@@ -18,13 +25,13 @@ bool MenuHandler::canEscape()
 	  // Flat probability percentage (60%)
 }
 
-void MenuHandler::endTurn(Character currentCharacter) //For now, just wipes current character's counters. Has potential to do other clean-up operations
+/*void MenuHandler::endTurn(Character currentCharacter) //For now, just wipes current character's counters. Has potential to do other clean-up operations
 {
 	currentCharacter.resetCounters();
 	endLoop = false; // Stops current character's turn by ending the 'turn' while loop in 'canMakeTurn'
-}
+}*/
 
-bool MenuHandler::allEnemiesDead()
+/*bool MenuHandler::allEnemiesDead()
 {
 	for (auto character : characters)
 	{
@@ -32,9 +39,9 @@ bool MenuHandler::allEnemiesDead()
 			return false;
 	}
 	return true;
-}
+}*/
 
-bool MenuHandler::canMakeTurn(Character currentCharacter) // Checks current character's status to make sure they are able to move, attack or use an item
+/*bool MenuHandler::canMakeTurn(const Character & currentCharacter) // Checks current character's status to make sure they are able to move, attack or use an item
 {
 	std::string statuses[2] = { "Stunned", "Dead" };
 	for (auto status : statuses)
@@ -43,27 +50,27 @@ bool MenuHandler::canMakeTurn(Character currentCharacter) // Checks current char
 			return false;
 	}
 	return true;
-}
+}*/
 
-void MenuHandler::makeTurn(Character currentCharacter)
+void MenuHandler::makeTurn(Character & currentCharacter )
 {
 	while (!endLoop)
 	{
-		char userOption = menus["Main"].start();
+		char userOption = menus["Battle"]->startMenu(currentCharacter, characters, field);
 		// We need a way to extract information from cin through the Main menu, so that we can navigate to other menus
 		switch (userOption)
 		{
 		case 'm': // User tries to move themselves / ally on the field
 			if (hasMoveCounters(currentCharacter)) // Check if user has sufficient move counters
-				menus["Move"].start(); // fire up 'Move' UI
+				menus["Move"]->startMenu(currentCharacter); // fire up 'Move' UI
 			break;
 		case 'f':
 			if (hasActionCounters(currentCharacter)) // Check if user has sufficient action counters
-				menus["Fight"].start(); // fire up 'Fight' UI
+				menus["Fight"]->start(); // fire up 'Fight' UI
 			break;
 		case 'i':
 			if (hasActionCounters(currentCharacter)) // Check if user has sufficient action counters
-				menus["Inventory"].start(); // fire up 'Inventory' UI
+				menus["Item"]->start(); // fire up 'Inventory' UI
 			break;
 		case 'p':
 			if (canEscape()) // If player can escape, then end turn
@@ -76,10 +83,10 @@ void MenuHandler::makeTurn(Character currentCharacter)
 			std::cout << "Please Enter a Valid Input" << std::endl;
 		}
 	}
-	endTurn(currentCharacter);
+	//endTurn(currentCharacter);
 }
 
-void MenuHandler::loopCharacters(Character currentCharacter)
+/*void MenuHandler::loopCharacters(Character currentCharacter)
 {
 	int totalCharacters = characters.size(); // Total number of characters so we know when we need to loop from the end of the Char vector back to the beginning
 	int currentChar = 0; // When we start iterating through players' turns, we start at index 0 of the character list, then keep looping through the list until battle is over
@@ -90,11 +97,20 @@ void MenuHandler::loopCharacters(Character currentCharacter)
 		currentChar = ++currentChar % totalCharacters; // Once currentChar reaches the last value in the char list, this allows the fn to loop back to the first value
 	}
 
+}*/
+
+void MenuHandler::initialize()
+{
+    setCharacterOrder();
+    field.insertCharacters(characters); 
+    //cout << "Printing field after inserting characters" << endl;
+    field.printField();
+    //loopCharacters(characters);
 }
 
 void MenuHandler::setCharacterOrder() // alters the character list data member
 {
-    PriorityQueue q(characters.size());
+    PriorityQueue<Character> q(characters.size());
     // steps:
     // Insert all characters into the priority queue
     // Pop characters out of the PQ and re-insert them into the vector, but this time in the correct order
@@ -104,5 +120,12 @@ void MenuHandler::setCharacterOrder() // alters the character list data member
     {
 	characters[i] = q.pop(); // This reorders the characters so that they are ordered by speed, descending from index 0 to index characters.size() -1
     }    
+}
+
+void MenuHandler::printField()
+{
+	cout << "Printing Field: " << endl;
+	field.printField();
+	cout << "Printed Field." << endl;
 }
 

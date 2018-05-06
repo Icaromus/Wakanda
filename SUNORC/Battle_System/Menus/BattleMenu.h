@@ -10,6 +10,7 @@
 class BattleMenu : public Menu
 {
 public:
+	
 	void startMenu(Character & currentCharacter, vector<Character> & characterList, string & Field);
 
 	void printMenu(Character & currentCharacter, vector<Character> & characterList, string & Field);
@@ -25,8 +26,11 @@ public:
 
 	Character getCharacterWithGreatestSpeed(vector<Character> & characterList);
 
+	
+
 private:
 	bool battleHasEnded = false;
 	bool turnHasEnded = false;
+
 
 };

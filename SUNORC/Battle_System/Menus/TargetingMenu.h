@@ -1,14 +1,16 @@
 #pragma once
 #include "Menu.h"
+#include <limits>
+#include "../MenuHandler/Field.h"
 
 class TargetingMenu : public Menu
 {
 public:
-	//TargetingMenu();
+	//TargetingMenu() {}
 
-	void startMenu(Character & currentCharacter, vector<Character> & characterList, string & Field);
-	void printMenu(Character & currentCharacter, vector<Character> & characterList, string & Field);
-	void askForResponse(Character & currentCharacter, vector<Character> & characterList, string & Field);
+	void startMenu(Character & currentCharacter, vector<Character> & characterList, string & field);
+	void printMenu(Character & currentCharacter, vector<Character> & characterList, string & field);
+	void askForResponse(Character & currentCharacter, vector<Character> & characterList, string & field);
 
 	void generateTargetsList(Character & currentCharacter, vector<Character> & characterList);
 	void resetTargetsList();

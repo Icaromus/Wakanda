@@ -12,8 +12,7 @@ Field::Field(int maxWidth, int maxHeight)
 	:width(maxWidth), height(maxHeight), grid(new char *[height])
 {
 
-
-
+	generateRandomField();
 	/*for (int i = 0; i < height+1; ++i) // Iterate through every row
 	{
 		grid[i] = new char[width + 1]; // each row is now initialized as an array
@@ -24,6 +23,18 @@ Field::Field(int maxWidth, int maxHeight)
 	
 	}
 	*/
+}
+
+Field::Field(const Field & f)
+	:width(f.width), height(f.height), currentHeight(f.currentHeight), grid(copyGrid(f)), dimensions(f.dimensions), offsets(f.offsets), occupiedCells(f.occupiedCells)
+	{
+		//message = "copied.";
+	}
+
+Field::Field()
+	:width(1), height(1), grid(new char * [height]), currentHeight(1)
+{
+//	generateRandomField();
 }
 
 void Field::generateRandomField()
@@ -163,7 +174,7 @@ void Field::printCell(int x, char ** grid)
 
 void Field:: setCharacterOrder(vector<Character> & characters)
 {
-    PriorityQueue q(characters.size());
+    PriorityQueue<Character> q(characters.size());
     // steps:
     // Insert all characters into the priority queue
     // Pop characters out of the PQ and re-insert them into the vector, but this time in the correct order
@@ -172,6 +183,7 @@ void Field:: setCharacterOrder(vector<Character> & characters)
     for (int i = 0; i < characters.size(); ++i)
     {
 	characters[i] = q.pop(); // This reorders the characters so that they are ordered by speed, descending from index 0 to index characters.size() -1
+	cout << "Character " << i << ": " << characters[i] << endl;
     }
     
 }
@@ -182,87 +194,124 @@ void Field::insertCharacters(vector <Character> & Characters)
     // The objective here is to insert the hero and his / her allies onto one side of the field, and the enemies on the other side. I will be placing the hero in the bottom quarter of the field and the enemies in the top quarter using the helper functions insertAlly and insertEnemy
     // KEEP IN MIND we need to keep track of which cells are occupied so that we don't mistakenly place two characters in the same cell.
     srand(time(NULL));
+    //cout << "CurrentHeight of Field: " << currentHeight << endl;
     int partition = currentHeight / 4; // the partition that I'll use to contain enemies / allies in their correct positions
     for (auto character : Characters)
     {
+	//cout << "Character blah's affinity: " << character.GetCharAffinity() << endl;
 	placeCharacter(character, partition); // placeCharacter will determine whether a character is an ally or enemy, and place them into the correct area of the field.
     } 
 
 }
 
-static void Field::insertAlly(Character & c, int upperLimit) // Looking at the field as index 0 being the highest row and index 'height' being the lowest row, 'upperLimit' refers to the highest row that an ally can be placed on the field
+void Field::insertAlly(Character & c, int upperLimit) // Looking at the field as index 0 being the highest row and index 'height' being the lowest row, 'upperLimit' refers to the highest row that an ally can be placed on the field
 {
-    srand(time(NULL));
+    //srand(time(NULL));
     while (true) // This while loop will keep generating random coordinates within the partition until it creates a valid Point(x,y) that is not occupied by some other character.
     {
-	int newY = rand() % (upperLimit - 1) + (currentHeight - upperLimit) // Places the current character somewhere between (currentHeight - upperLimit) and currentHeight .. AKA the bottom quarter of the field
-	int newX = rand() % (dimensions[newY]) + offsets[newY] - 1 // the upper and lower bound of the x coordinate depends on the Y coordinate, because each row has different offsets and active widths. This places the x coord somewhere between the leftmost active cell and the rightmost active cell.
-        if (!contains(occupiedCells, Point(newX, newY))) // If this Point coordinate isn't already taken by some other character...
+	srand(time(NULL));
+	int newY = rand() % (upperLimit - 1 > 0 ? upperLimit : 1) + (currentHeight - upperLimit); // Places the current character somewhere between (currentHeight - upperLimit) and currentHeight .. AKA the bottom quarter of the field
+	int newX = rand() % (dimensions[newY] > 0 ? dimensions[newY] : 1) + offsets[newY] - 1; // the upper and lower bound of the x coordinate depends on the Y coordinate, because each row has different offsets and active widths. This places the x coord somewhere between the leftmost active cell and the rightmost active cell.
+        if (!Field::contains(occupiedCells, Point(newX, newY))) // If this Point coordinate isn't already taken by some other character...
 	{
 	    c.SetCharLoc(Point(newX, newY)); // Assign that character the coordinates
-	    grid[newY][newX] = c.GetCharSymbol; // Add the character's symbol to the field, in the correct cell
+	    grid[newY][newX] = c.GetCharSymbol(); // Add the character's symbol to the field, in the correct cell
+	    occupiedCells.push_back(Point(newX, newY));
+	    //cout << "Inserted Ally: " << c.GetCharSymbol() << "into cell" << newY << " " << newX << endl;
+
 	    break;
 	}
     }
 }
 
-static void Field::insertEnemy(Character & c, int lowerLimit);
+void Field::insertEnemy(Character & c, int lowerLimit)
 {
     srand(time(NULL));
     while (true)
     {
-	int newY = rand() % lowerLimit - 1; // new Y will be between 0 and lowerLimit - 1
-	int newX = rand() % dimensions[newY] + offsets[newY] - 1; // current x is now between the lowest active cell and the highest active cell
-	if (!contains(occupiedCells, Point(newX, newY)))
+	//srand(time(NULL));
+	int newY = rand() % (lowerLimit - 1 > 0 ? lowerLimit : 1); // new Y will be between 0 and lowerLimit - 1
+
+	//cout << "Current dimensions of row " << newY << ": " << dimensions[newY] << endl;
+	int newX = rand() % (dimensions[newY] > 0 ? dimensions[newY] : 1) + offsets[newY] - 1; // current x is now between the lowest active cell and the highest active cell
+
+	//cout << newX << " " << newY << endl;
+	if (!Field::contains(occupiedCells, Point(newX, newY)))
 	{
 	    c.SetCharLoc(Point(newX, newY));
-	    grid[newY][newX] = c.GetCharSymbol;
+	    grid[newY][newX] = c.GetCharSymbol();
+	    occupiedCells.push_back(Point(newX, newY));
+	    //cout << "Inserted Enemy: " << c.GetCharSymbol() << " into cell " << newY << " " << newX << endl;
 	    break;
 	}
     }
 }
 
-static void Field::placeCharacter( Character & c, int partition)
+void Field::placeCharacter( Character & c, int partition)
 {
  // Character.CharLoc, Character.CharLoc.x(), y()
     std::vector<std::string> hostile{ "Enemy", "Boss"};
     std::vector <std::string> ally { "Hero", "Ally"};
-    
-     contains(hostile, c.CharAffinity) // Checks if the current character's affinity is in the 'hostile' vector. If it is place them at the top of the field, else place them at the bottom 
-    ?     insertEnemy(c)
-    :	  insertAlly(c); 
+    //cout << "Character1's affinity: " << c.GetCharAffinity() << endl;  
+    contains(hostile, c.GetCharAffinity()) // Checks if the current character's affinity is in the 'hostile' vector. If it is place them at the top of the field, else place them at the bottom 
+    ?     insertEnemy(c, partition)
+    :	  insertAlly(c,partition); 
 }
 
-static void Field::contains(std::vector<std::string> vec, string affinity)
+bool Field::contains(std::vector<std::string> vec, string affinity)
 {
     //REMEMBER TO INCLUDE ALGORITHM SO THAT FIND WILL WORK!
-    return std::find(vec.begin(), vec.end(), affinity) != vec.end() // If find() != vec.end(), that means that affinity was found in vec
+    //return std::find(vec.begin(), vec.end(), affinity) != vec.end(); // If find() != vec.end(), that means that affinity was found in vec
+    for (int i = 0; i < vec.size(); ++i)
+    {
+	    //cout << "affinity: " << affinity << " " <<  "vec[i]: " << vec[i] << endl;
+	    if (vec[i] == affinity)
+		    return true;
+    }
+    return false;
 }
 
+bool Field::contains(std::vector<Point> vec, Point currentLoc)
+{
+    //return std::find(vec.begin(), vec.end(), currentLoc) != vec.end();
+    for (int i = 0; i < vec.size(); ++i)
+    {
+	//cout << currentLoc.x() << " " << currentLoc.y()  << " " << vec[i].x() << " " << vec[i].y() << endl;
+        if (vec[i] == currentLoc)
+	    return true;
+    }
+    return false;
 
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
+char ** Field::copyGrid(const Field & f)
+{
+	char ** newGrid = new char * [f.height];
+	for (int i = 0; i < f.currentHeight; ++i)
+	{
+		char * newRow = new char[f.width];
+		for (int j = 0; j < f.width; ++j)
+		{
+			newRow[j] = f.grid[i][j];
+		}
+		newGrid[i] = newRow;
+	}
+	return newGrid;
+}
 
 
 Field::~Field()
 {
-    
-    for (int i = 0; i < Field::currentHeight; ++i)
+    if (currentHeight != 1) 
     {
-	delete[] grid[i];
-	cout << "Deleted row: " << i << endl;
+    	for (int i = 0; i < currentHeight; ++i)
+    	{
+		delete[] grid[i];
+		//cout << "Deleted row: " << i << endl;
+    	}
     }
+    //cout << "Deleting grid. " << endl;
+    //cout << "Message: " << message << endl;
     delete[] grid;
 
 }

@@ -5,6 +5,8 @@
 class ItemMenu : public Menu
 {
 public:
+//	ItemMenu() {}
+
 	void startMenu(Character & currentCharacter, vector<Character> & characterList, string & Field);
 
 	void printMenu(Character & currentCharacter, vector<Character> & characterList, string & Field);

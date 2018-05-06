@@ -12,10 +12,14 @@ private:
 	std::vector<int> dimensions; // Stores the sizes of every row in the grid
 	std::vector<int> offsets; // Offset values for each row, so that they can be more centered instead of left aligned	
 	std::vector<Point> occupiedCells; // Keeps track of all the cells active characters occupy
+	string message = "not inside.";
 
 public:
-	Field(int maxWidth, int maxHeight);
+	explicit Field(int maxWidth, int maxHeight);
 
+	Field(const Field & f);
+
+	Field();
 	void generateRandomField();
 
 	int createRowOffset(int rowWidth);
@@ -36,11 +40,17 @@ public:
 
 	void setCharacterOrder(vector<Character> & characters);
 
-        static void insertAlly(Character & c, int upperLimit);
+        void insertAlly(Character & c, int upperLimit);
 
-	static void insertEnemy(Character & c, int lowerLimit);
+	void insertEnemy(Character & c, int lowerLimit);
 
-	static void Field::placeCharacter( Character & c, int partition);
+	void placeCharacter( Character & c, int partition);
+
+	bool contains(std::vector<std::string> vec, string affinity);
+
+	bool contains(std::vector<Point> vec, Point currentLoc);
+
+	static char** copyGrid(const Field & f);
 
 //	void printCharacters();
 

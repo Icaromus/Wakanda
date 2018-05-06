@@ -4,6 +4,7 @@
 class MoveMenu : public Menu
 {
 public:
+//	MoveMenu() {}
 	void startMenu(Character & currentCharacter, vector<Character> & characterList, string & Field);
 
 	void printMenu(Character & currentCharacter, vector<Character> & characterList, string & Field);

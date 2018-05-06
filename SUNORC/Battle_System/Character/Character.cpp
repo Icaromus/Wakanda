@@ -66,11 +66,19 @@ Character::Character(		// constructor
 	string StatusEffect,
 	Point Loc,
 	char Symbol,
-	CharStats inStats)
+	CharStats inStats,
+	string Affinity)
+
 	: CharName(Name), CharWeapon(Weapon), Counters(Counters), MoveList(Moves),
-	  ItemList(Items), CharStatus(StatusEffect), CharLoc(Loc), CharSymbol(Symbol), Stats(inStats)
+	  ItemList(Items), CharStatus(StatusEffect), CharLoc(Loc), CharSymbol(Symbol), Stats(inStats), CharAffinity(Affinity)
 	{
 	}
+
+Character::Character( const Character & c)
+	:CharName(c.CharName), CharWeapon(c.CharWeapon), Counters(c.Counters),
+	 MoveList(c.MoveList), ItemList(c.ItemList), CharStatus(c.CharStatus),
+	 CharLoc(c.CharLoc), CharSymbol(c.CharSymbol), Stats(c.Stats), CharAffinity(c.CharAffinity)
+        {}
 
 // Character Name
 string Character::GetCharName(){ return CharName; }
@@ -128,4 +136,35 @@ void Character::SetCharStats(int newAtk, int newDef, int newSpd, int newCurHP, i
 	Stats.Spd = newSpd;
 	Stats.CurHP = newCurHP;
 	Stats.MaxHP = newMaxHP;
+}
+
+//Print
+void Character::print(ostream & out) const
+{
+	out << "Character Symbol: " << CharSymbol << endl;;
+	out << CharWeapon;
+        out << Stats;
+	out << CharStatus << endl;;
+	out << "Affinity: " << CharAffinity << endl << endl;	
+}
+
+void CharStats::print(ostream & out) const
+{
+	out << "Character Stats: " << endl;
+	out << "Atk: " << Atk << endl;
+	out << "Def: " << Def << endl;
+	out << "Spd: " << Spd << endl;
+	out << "Current HP: " << CurHP << endl;
+	out << "Max HP: "  << MaxHP << endl;
+}
+
+void Weapon::print( ostream & out) const
+{
+	out << "Weapon Name: " << Name << endl;
+	out << "Range: " << AttackRange << endl;
+}
+
+bool Character::lessThan( Character & c) // The lessThan function will determine if the current Character is faster than the Character c
+{
+	return Stats.Spd > c.GetCharStats().Spd;
 }

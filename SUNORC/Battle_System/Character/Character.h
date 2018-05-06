@@ -3,6 +3,7 @@
 #include <vector>
 #include "Point.cpp"
 #include <map>
+#include <iostream>
 
 using namespace std;
 
@@ -16,6 +17,15 @@ struct CharStats
 
 	explicit CharStats(int Attack, int Defense, int Speed, int CurHealth, int MaxHealth);
 	CharStats(const CharStats& inChar);
+	CharStats() {}
+
+	void print( ostream & out ) const;
+	friend std::ostream & operator << (std::ostream & out, const CharStats & c)
+	{
+	    c.print(out);
+	    return out;
+	}
+
 };
 
 struct CounterBox
@@ -27,6 +37,7 @@ struct CounterBox
 
 	explicit CounterBox(int MoveCount, int MaxMoveCount, int ActionCount, int MaxActionCount);
 	CounterBox(const CounterBox& inCountBox);
+	CounterBox() {}
 };
 
 // temporary obviously
@@ -39,6 +50,14 @@ struct Weapon
 
 	explicit Weapon(string Name, int AttackModifier, int AttackRange);
 	Weapon(const Weapon& inWeap);
+	Weapon() {}
+	void print( ostream & out ) const;
+	friend std::ostream & operator << (std::ostream & out, const Weapon & w)
+	{
+	    w.print(out);
+	    return out;
+	}
+
 };
 
 // temporary obviously
@@ -50,6 +69,7 @@ struct Item
 
 	explicit Item(string Name, int Quantity, string Effect);
 	Item(const Item& inItem);
+	Item() {}
 };
 
 // obviously temporary
@@ -79,7 +99,14 @@ public:
 		string StatusEffect,
 		Point Loc,
 		char Symbol,
-		CharStats inStats);
+		CharStats inStats,
+		string Affinity);
+
+	Character()
+		:CharName(""), CharWeapon(Weapon()), Counters(CounterBox()), CharLoc(Point(0,0)), Stats(CharStats()), CharAffinity("")
+	{}
+
+	Character(const Character & c);
 
 	string GetCharName();
 	void SetCharName(string);
@@ -114,6 +141,11 @@ public:
 	CharStats GetCharStats();
 	void SetCharStats(int newAtk, int newDef, int newSpd, int newCurHP, int newMaxHP);
 
+	bool lessThan(Character & c);
+
+	//Printing
+	void print(ostream & out) const;
+
 private:
 	string CharName;
 	Weapon CharWeapon;
@@ -129,4 +161,10 @@ private:
 	Point CharLoc;
 	char CharSymbol;
 	CharStats Stats;
+
+	friend std::ostream & operator << (std::ostream & out, const Character & c)
+	{
+	    c.print(out);
+	    return out;
+	}
 };

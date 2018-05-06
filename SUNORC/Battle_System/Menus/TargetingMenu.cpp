@@ -1,6 +1,8 @@
 #include "TargetingMenu.h"
+#include "../MenuHandler/Field.h"
+#include "../Character/Character.h"
 
-void TargetingMenu::startMenu(Character & currentCharacter, vector<Character> & characterList, string & Field)
+void TargetingMenu::startMenu(Character & currentCharacter, vector<Character> & characterList, string & field)
 {
 	setCancelledAttack(false);
 	setSuccessfulAction(false);
@@ -9,15 +11,15 @@ void TargetingMenu::startMenu(Character & currentCharacter, vector<Character> & 
 	{
 		resetTargetsList();
 		generateTargetsList(currentCharacter, characterList);
-		printMenu(currentCharacter, characterList, Field);
-		askForResponse(currentCharacter, characterList, Field);
+		printMenu(currentCharacter, characterList, field);
+		askForResponse(currentCharacter, characterList, field);
 		if (hasCancelledAttack)
 			break;
 	}
 	cout << "Finished Targeting SubMenu. " << endl;
 }
 
-void TargetingMenu::printMenu(Character & currentCharacter, vector<Character> & characterList, string & Field)
+void TargetingMenu::printMenu(Character & currentCharacter, vector<Character> & characterList, string & field)
 {
 	if (targetsList.empty())
 	{
@@ -31,7 +33,7 @@ void TargetingMenu::printMenu(Character & currentCharacter, vector<Character> & 
 		cout << left << setw(8) << i + 1 << targetsList[i]->GetCharName() << endl;
 }
 
-void TargetingMenu::askForResponse(Character & currentCharacter, vector<Character> & characterList, string & Field)
+void TargetingMenu::askForResponse(Character & currentCharacter, vector<Character> & characterList, string & field)
 {
 	if (getCancelledAttack())
 	{
@@ -42,7 +44,7 @@ void TargetingMenu::askForResponse(Character & currentCharacter, vector<Characte
 	int response;
 	cout << "Select a target: ";
 	cin >> response;
-	cin.ignore(numeric_limits<streamsize>::max(), '\n');
+	cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
 
 	if (response > 0)
 		--response;
